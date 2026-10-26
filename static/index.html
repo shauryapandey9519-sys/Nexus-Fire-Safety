@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexus Fire Safety AI — Autonomous Early Hazard Detection & Evacuation Intelligence</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Navbar -->
+    <header class="top-nav">
+      <div class="brand-section">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>NEXUS FIRE SAFETY AI</h1>
+          <div class="facility-badge">
+            <span class="pulse-dot"></span>
+            <span>APEX BIOTECH RESEARCH FACILITY &bull; BUILDING 4</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <!-- Live Threat Level Badge -->
+        <div id="threatBadge" class="threat-status-badge">
+          <span class="pulse-dot"></span>
+          <span>DEFCON 4 - ALL SYSTEMS NORMAL</span>
+        </div>
+
+        <!-- Siren Button -->
+        <button id="sirenToggleBtn" class="btn btn-siren" onclick="audioEngine.toggleAlarm()">
+          <span>🔇</span> NFPA 72 Siren
+        </button>
+
+        <!-- Interactive Drill Button -->
+        <button class="btn btn-secondary" onclick="openDrillModal()">
+          <span>🎯</span> Fire Drill Trainer
+        </button>
+
+        <!-- AI Co-Pilot Nav Button -->
+        <button class="btn btn-secondary" onclick="toggleAiDrawer(true)">
+          <span>✨</span> AI Co-Pilot
+        </button>
+
+        <!-- Hackathon Pitch Deck & Architecture Button -->
+        <button class="btn btn-primary" onclick="toggleModal('pitchModal', true)">
+          <span>🏆</span> Pitch Deck & Tech
+        </button>
+      </div>
+    </header>
+
+    <!-- Emergency Hazard Slide-in Banner -->
+    <div id="emergencyBanner" class="emergency-banner">
+      <div class="banner-left">
+        <svg class="banner-pulse-icon" viewBox="0 0 24 24">
+          <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 10h2v4h-2zm0 6h2v2h-2z"/>
+        </svg>
+        <span id="emergencyBannerText">CRITICAL HAZARD DETECTED: Automated evacuation routing initiated.</span>
+      </div>
+      <div>
+        <button class="btn btn-danger" onclick="switchTab('dispatch')">View 911 CAD SitRep</button>
+      </div>
+    </div>
+
+    <!-- Scenario Simulator Quick Bar -->
+    <div class="scenario-bar">
+      <div class="scenario-label">
+        <span>⚡ HACKATHON SIMULATOR:</span>
+      </div>
+      <div class="scenario-buttons">
+        <button class="sim-btn active" data-scenario="normal">🟢 Normal Operations</button>
+        <button class="sim-btn fire" data-scenario="electrical_server">⚡ Server Electrical Fire (Class C)</button>
+        <button class="sim-btn fire" data-scenario="kitchen_flashover">🍳 Kitchen Grease Flashover (Class K)</button>
+        <button class="sim-btn fire" data-scenario="chemical_lab">🧪 Chemical Solvent Ignition (Class B)</button>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <nav class="tabs-nav">
+      <button class="tab-btn active" data-tab="hub">
+        <span>🌐</span> Command Hub
+      </button>
+      <button class="tab-btn" data-tab="floorplan">
+        <span>🗺️</span> Evacuation Floorplan & Dijkstra Engine
+      </button>
+      <button class="tab-btn" data-tab="vision">
+        <span>📹</span> Vision AI Sentinel (CCTV & WebCam)
+        <span class="tab-badge">LIVE AI</span>
+      </button>
+      <button class="tab-btn" data-tab="telemetry">
+        <span>📈</span> IoT Sensor Telemetry Grid
+      </button>
+      <button class="tab-btn" data-tab="dispatch">
+        <span>🚨</span> AI Incident Commander & 911 Dispatch
+      </button>
+      <button class="tab-btn" data-tab="compliance">
+        <span>📋</span> Life Safety & NFPA Audit
+      </button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- TAB 1: COMMAND HUB (OVERVIEW) -->
+      <section id="tabView_hub" class="tab-view active">
+        <!-- Metrics Row -->
+        <div class="metrics-row">
+          <div class="glass-panel metric-card">
+            <div class="metric-header">
+              <span>Occupant Evacuation</span>
+              <span>👥</span>
+            </div>
+            <div id="metricEvacuated" class="metric-value">0 / 67</div>
+            <div class="metric-sub">
+              <span class="pulse-dot"></span> Accounted for via RF Beacons
+            </div>
+          </div>
+
+          <div class="glass-panel metric-card danger">
+            <div class="metric-header">
+              <span>AI Fire Threat Index</span>
+              <span>🔥</span>
+            </div>
+            <div id="metricRiskScore" class="metric-value">4 / 100</div>
+            <div class="metric-sub">
+              <span>Predictive flashover risk model</span>
+            </div>
+          </div>
+
+          <div class="glass-panel metric-card">
+            <div class="metric-header">
+              <span>Peak Thermal Reading</span>
+              <span>🌡️</span>
+            </div>
+            <div id="metricMaxTemp" class="metric-value">21.4°C</div>
+            <div class="metric-sub">
+              <span>28 calibrated IoT thermal nodes</span>
+            </div>
+          </div>
+
+          <div class="glass-panel metric-card">
+            <div class="metric-header">
+              <span>Suppression Mesh</span>
+              <span>💧</span>
+            </div>
+            <div id="metricSprinkler" class="metric-value">STANDBY (122 PSI)</div>
+            <div class="metric-sub">
+              <span>FM-200 / Wet Pipe primed</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Split Grid: Floorplan mini preview & Real-time Alerts -->
+        <div class="split-grid-2">
+          <!-- Left: Evacuation Blueprint Quick View -->
+          <div class="glass-panel" style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div>
+                <h3 style="font-size: 1rem; font-weight: 700; color: #f8fafc;">Dynamic Egress & Spatial Map</h3>
+                <p style="font-size: 0.75rem; color: #94a3b8;">Real-time Dijkstra shortest-path escape vectors bypassing hazard zones</p>
+              </div>
+              <button class="btn" onclick="switchTab('floorplan')">Full Screen 🗺️</button>
+            </div>
+
+            <div class="floorplan-wrapper">
+              <canvas id="floorplanCanvas" class="floorplan-canvas" width="1000" height="600"></canvas>
+              <div class="floorplan-legend">
+                <div class="legend-item">
+                  <div class="legend-indicator" style="background:#10b981;"></div>
+                  <span>Safe Green Egress</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-indicator" style="background:#ef4444;"></div>
+                  <span>Active Fire / Hazard</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-indicator" style="background:#38bdf8;"></div>
+                  <span>Occupant Beacon</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Real-time Incident Feed & Tactical Status -->
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="glass-panel" style="padding: 20px; flex: 1;">
+              <h3 style="font-size: 1rem; font-weight: 700; color: #f8fafc; margin-bottom: 12px;">Tactical AI Assessment</h3>
+              <div id="tacticalResponseGuide" style="font-size: 0.85rem; line-height: 1.6;">
+                Loading AI Tactical sitrep...
+              </div>
+            </div>
+
+            <div class="glass-panel" style="padding: 20px; flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="font-size: 0.95rem; font-weight: 700; color: #f8fafc;">Recent Facility Incidents</h3>
+                <span class="tab-badge">AUDIT LOG</span>
+              </div>
+              <div id="incidentLogContainer" style="max-height: 240px; overflow-y: auto;">
+                Loading incidents...
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: EVACUATION FLOORPLAN & DIJKSTRA ENGINE -->
+      <section id="tabView_floorplan" class="tab-view">
+        <div class="glass-panel" style="padding: 24px; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+              <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff;">Dynamic Spatial Pathfinding & Building Floorplan</h2>
+              <p style="font-size: 0.8rem; color: #94a3b8;">
+                Graph-theoretic Dijkstra rerouting engine. When thermal sensors or AI cameras detect smoke or flame, edge weights dynamically update to infinity, re-guiding occupants to safe exits in under 100 milliseconds.
+              </p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn" onclick="triggerScenario('electrical_server')">⚡ Fire in Server B</button>
+              <button class="btn" onclick="triggerScenario('kitchen_flashover')">🍳 Fire in Kitchen</button>
+              <button class="btn btn-primary" onclick="resetScenario()">🟢 Reset Clear</button>
+            </div>
+          </div>
+
+          <!-- Selected Room Inspection Card -->
+          <div id="selectedRoomInfo" style="padding: 12px 16px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; margin-bottom: 12px;">
+            <div style="font-size: 0.8rem; color: #94a3b8;">Click any room on the architectural canvas below to inspect live environmental sensors and escape trajectories.</div>
+          </div>
+
+          <!-- What-If Sandbox Controls for Selected Room -->
+          <div id="roomHazardControls" style="display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; background: rgba(15, 23, 42, 0.4); padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <span style="font-size: 0.78rem; font-weight: 700; color: #38bdf8;">⚡ WHAT-IF SANDBOX:</span>
+            <button class="btn btn-sm" onclick="injectSelectedRoomHazard(84, 48, true)">🔥 Inject Fire Hazard (84°C)</button>
+            <button class="btn btn-sm" onclick="injectSelectedRoomHazard(52, 28, false)">💨 Inject Smoke Spread (28%)</button>
+            <button class="btn btn-sm btn-primary" onclick="clearSelectedRoomHazard()">🟢 Clear Room Hazard</button>
+          </div>
+
+          <!-- Floorplan Canvas View -->
+          <div class="floorplan-wrapper">
+            <canvas id="floorplanCanvasFloorplanTab" class="floorplan-canvas" width="1000" height="600"></canvas>
+            <div class="floorplan-legend">
+              <div class="legend-item">
+                <div class="legend-indicator" style="background:#10b981;"></div>
+                <span>Safe Green Egress</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-indicator" style="background:#ef4444;"></div>
+                <span>Active Fire / Hazard</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-indicator" style="background:#38bdf8;"></div>
+                <span>Occupant Beacon</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: VISION AI SENTINEL (CCTV & LIVE WEBCAM) -->
+      <section id="tabView_vision" class="tab-view">
+        <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff;">Vision AI Sentinel Surveillance Mesh</h2>
+            <p style="font-size: 0.8rem; color: #94a3b8;">
+              Edge computer vision models running smoke kinematics, optical flow plume tracking, and flame flicker corona bounding box detection.
+            </p>
+          </div>
+        </div>
+
+        <!-- 4 CCTV Feeds Grid -->
+        <div class="cctv-grid">
+          <!-- Cam 1: Server Room B -->
+          <div class="camera-card">
+            <div class="camera-header">
+              <span>CAM 01 &bull; SERVER ROOM B (DATA CENTER)</span>
+              <span class="camera-rec-dot"></span>
+            </div>
+            <div class="camera-preview">
+              <canvas id="cctvCanvasServer" width="480" height="270"></canvas>
+              <div class="camera-hud-overlay"></div>
+            </div>
+          </div>
+
+          <!-- Cam 2: Cafeteria -->
+          <div class="camera-card">
+            <div class="camera-header">
+              <span>CAM 02 &bull; CAFETERIA & COMMERCIAL KITCHEN</span>
+              <span class="camera-rec-dot"></span>
+            </div>
+            <div class="camera-preview">
+              <canvas id="cctvCanvasCafe" width="480" height="270"></canvas>
+              <div class="camera-hud-overlay"></div>
+            </div>
+          </div>
+
+          <!-- Cam 3: Chem Lab 4 -->
+          <div class="camera-card">
+            <div class="camera-header">
+              <span>CAM 03 &bull; CHEMISTRY LAB 4</span>
+              <span class="camera-rec-dot"></span>
+            </div>
+            <div class="camera-preview">
+              <canvas id="cctvCanvasLab" width="480" height="270"></canvas>
+              <div class="camera-hud-overlay"></div>
+            </div>
+          </div>
+
+          <!-- Cam 4: Central Lobby -->
+          <div class="camera-card">
+            <div class="camera-header">
+              <span>CAM 04 &bull; CENTRAL RECEPTION LOBBY</span>
+              <span class="camera-rec-dot"></span>
+            </div>
+            <div class="camera-preview">
+              <canvas id="cctvCanvasLobby" width="480" height="270"></canvas>
+              <div class="camera-hud-overlay"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Live WebCam Sentinel for Judges -->
+        <div class="glass-panel webcam-panel">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h3 style="font-size: 1.05rem; font-weight: 700; color: #38bdf8;">✨ Live Judge Interactive Test: Connect Your WebCam</h3>
+              <p id="webcamStatusText" style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px;">
+                Connect your laptop webcam to test the computer vision engine live! Hold up a flame, lighter, candle, or a red/orange photo to see real-time bounding boxes and hazard detection!
+              </p>
+            </div>
+            <button id="toggleWebcamBtn" class="btn btn-primary" onclick="toggleWebcam()">
+              <span>📹</span> Connect Live WebCam
+            </button>
+          </div>
+
+          <div class="webcam-feed-container">
+            <video id="webcamVideo" autoplay playsinline muted></video>
+            <canvas id="webcamOverlayCanvas"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: IOT SENSOR TELEMETRY GRID -->
+      <section id="tabView_telemetry" class="tab-view">
+        <div style="margin-bottom: 20px;">
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff;">IoT Environmental Sensor Telemetry</h2>
+          <p style="font-size: 0.8rem; color: #94a3b8;">
+            High-precision mesh nodes monitoring ambient temperature (°C), optical smoke obscuration (%/ft), carbon monoxide (ppm), volatile organic compounds (VOC), and fire sprinkler manifold pressure (PSI).
+          </p>
+        </div>
+
+        <!-- Historical Real-time Canvas Line Chart -->
+        <div class="glass-panel" style="padding: 20px; margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="font-size: 0.95rem; font-weight: 700; color: #f8fafc;">Live Facility Trend Stream</h3>
+            <div style="display: flex; gap: 14px; font-size: 0.75rem; font-family: monospace;">
+              <span style="color: #ef4444;">● Peak Temp (°C)</span>
+              <span style="color: #f97316;">● Smoke Obscuration (%)</span>
+              <span style="color: #06b6d4;">● Carbon Monoxide (ppm)</span>
+            </div>
+          </div>
+          <canvas id="sensorTrendChart" width="1000" height="220" style="width: 100%; height: 220px;"></canvas>
+        </div>
+
+        <!-- Multi-Room Sensor Cards -->
+        <div id="sensorTelemetryGrid" class="sensor-card-grid">
+          <!-- Rendered dynamically by JavaScript -->
+        </div>
+      </section>
+
+      <!-- TAB 5: INCIDENT COMMANDER & 911 DISPATCH -->
+      <section id="tabView_dispatch" class="tab-view">
+        <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff;">AI Incident Commander & Automated 911 CAD Dispatch</h2>
+            <p style="font-size: 0.8rem; color: #94a3b8;">
+              Autonomous generation of NFPA 901 standard Computer-Aided Dispatch (CAD) payloads, structural vulnerability assessments, and tactical suppression directives for first-responders.
+            </p>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn" onclick="openIapModal()">📄 NFPA 901 Incident Action Plan</button>
+            <button class="btn btn-primary" onclick="copyCADDispatch()">📋 Copy CAD Dispatch</button>
+          </div>
+        </div>
+
+        <div class="split-grid-2">
+          <!-- CAD Transmission Payload Box -->
+          <div class="glass-panel" style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h3 style="font-size: 0.95rem; font-weight: 700; color: #38bdf8;">Automated 911 / Fire Department Radio Transmission</h3>
+              <span class="tab-badge">CAD PAYLOAD</span>
+            </div>
+            <div id="cadDispatchText" class="cad-dispatch-box">
+              Generating CAD Transmission...
+            </div>
+          </div>
+
+          <!-- Tactical First Responder Guidelines -->
+          <div class="glass-panel" style="padding: 20px;">
+            <h3 style="font-size: 0.95rem; font-weight: 700; color: #f8fafc; margin-bottom: 14px;">Responder Tactical Action Card</h3>
+            <div style="display: flex; flex-direction: column; gap: 14px; font-size: 0.82rem;">
+              <div style="padding: 12px; background: rgba(15, 23, 42, 0.7); border-radius: 8px; border-left: 3px solid #10b981;">
+                <strong style="color: #34d399;">Primary Ingress Route:</strong>
+                <p style="color: #cbd5e1; margin-top: 4px;">North Main Concourse. Stairwell East pressurized and smoke-free.</p>
+              </div>
+              <div style="padding: 12px; background: rgba(15, 23, 42, 0.7); border-radius: 8px; border-left: 3px solid #f59e0b;">
+                <strong style="color: #fbbf24;">Structural Hazards:</strong>
+                <p style="color: #cbd5e1; margin-top: 4px;">Type II-A Protected Non-combustible steel framing. Bar joist ceiling assembly in Server Wing.</p>
+              </div>
+              <div style="padding: 12px; background: rgba(15, 23, 42, 0.7); border-radius: 8px; border-left: 3px solid #ef4444;">
+                <strong style="color: #f87171;">Hydrant Standpipe Connection:</strong>
+                <p style="color: #cbd5e1; margin-top: 4px;">Siamese FDC on North-East perimeter at 145 PSI static pressure.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Facility Public Address (EVACS) Synthesizer Console -->
+        <div class="glass-panel" style="padding: 20px; margin-top: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <h3 style="font-size: 0.95rem; font-weight: 700; color: #38bdf8;">Facility Emergency Public Address (EVACS) Broadcast Console</h3>
+              <p style="font-size: 0.76rem; color: #94a3b8;">Synthesizes NFPA 72 compliant chime and audio voice broadcast across all building zones</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-sm" onclick="setPaPreset('evac')">Evacuation Preset</button>
+              <button class="btn btn-sm" onclick="setPaPreset('shelter')">Shelter-in-Place</button>
+              <button class="btn btn-sm" onclick="setPaPreset('clear')">All Clear</button>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <input id="paBroadcastInput" type="text" class="chat-input" placeholder="Enter emergency announcement to broadcast..." value="Attention building occupants: emergency evacuation in progress. Follow illuminated green egress vectors to the nearest exit." style="flex: 1;">
+            <button class="btn btn-danger" onclick="broadcastPAAnnouncement()">📢 Broadcast Over Facility PA</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: LIFE SAFETY & NFPA AUDIT -->
+      <section id="tabView_compliance" class="tab-view">
+        <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff;">Facility Life Safety & NFPA Code Compliance Audit</h2>
+            <p style="font-size: 0.8rem; color: #94a3b8;">
+              Autonomous digital inspection tracker compliant with NFPA 10 (Extinguishers), NFPA 72 (Signaling), NFPA 101 (Life Safety Code), and OSHA 1910.36 egress guidelines.
+            </p>
+          </div>
+          <button class="btn" onclick="window.print()">🖨️ Export Inspection Report</button>
+        </div>
+
+        <!-- Compliance Score Card -->
+        <div class="metrics-row" style="margin-bottom: 20px;">
+          <div class="glass-panel metric-card">
+            <div class="metric-header">
+              <span>Overall Compliance Score</span>
+              <span>⭐</span>
+            </div>
+            <div id="complianceScoreVal" class="metric-value" style="color: #34d399;">92%</div>
+            <div id="complianceGradeVal" class="metric-sub" style="color: #38bdf8; font-weight: 700;">Grade A Compliant</div>
+          </div>
+
+          <div class="glass-panel metric-card">
+            <div class="metric-header">
+              <span>Standards Covered</span>
+              <span>📚</span>
+            </div>
+            <div class="metric-value">NFPA &bull; OSHA</div>
+            <div class="metric-sub">NFPA 10, 72, 101, OSHA 1910</div>
+          </div>
+
+          <div class="glass-panel metric-card">
+            <div class="metric-header">
+              <span>Autonomous Inspection</span>
+              <span>🤖</span>
+            </div>
+            <div class="metric-value">Continuous</div>
+            <div class="metric-sub">LiDAR clearance & Vision scans</div>
+          </div>
+        </div>
+
+        <!-- Compliance Checklist Table -->
+        <div class="glass-panel" style="padding: 20px; overflow-x: auto;">
+          <table class="compliance-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Standard & Category</th>
+                <th>Requirement Description</th>
+                <th>Status (Click to toggle)</th>
+                <th>Inspected</th>
+                <th>Remediation / Notes</th>
+              </tr>
+            </thead>
+            <tbody id="complianceTableBody">
+              <!-- Rendered via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- Hackathon Pitch Deck & Architecture Modal -->
+    <div id="pitchModal" class="modal-overlay">
+      <div class="modal-card">
+        <button class="modal-close" onclick="toggleModal('pitchModal', false)">&times;</button>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div class="brand-logo" style="width: 32px; height: 32px;">🔥</div>
+          <h2 style="font-size: 1.3rem; color: #fff;">Nexus Fire Safety AI — Hackathon Pitch & Tech Stack</h2>
+        </div>
+
+        <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin-bottom: 18px;">
+          Traditional fire alarm systems are fundamentally broken: they blare loud sirens with zero spatial awareness, cannot distinguish between electrical and grease fires, and offer zero dynamic guidance to trapped occupants. 
+          <strong>Nexus Fire Safety AI</strong> bridges the gap between IoT building infrastructure, edge computer vision, and incident commanders.
+        </p>
+
+        <div class="pitch-feature-grid">
+          <div class="pitch-feature-box">
+            <h4>🧠 Real-Time Vision AI Sentinel</h4>
+            <p>Analyzes live video feeds for smoke kinematics, flickering flame coronas, and blocked corridors with real-time bounding boxes and confidence scoring.</p>
+          </div>
+          <div class="pitch-feature-box">
+            <h4>🗺️ Dynamic Dijkstra Evacuation Engine</h4>
+            <p>Spatial pathfinding graph reroutes trapped occupants away from thermal hotspots and smoke corridors toward the nearest safe unblocked exit in milliseconds.</p>
+          </div>
+          <div class="pitch-feature-box">
+            <h4>🚨 Automated 911 CAD Dispatch</h4>
+            <p>Synthesizes instant NFPA 901 compliant dispatch transmissions with GPS coordinates, hydrant standpipes, construction types, and chemical hazard warnings.</p>
+          </div>
+          <div class="pitch-feature-box">
+            <h4>📋 Autonomous NFPA / OSHA Compliance</h4>
+            <p>Digital audit ledger scanning egress clearances, extinguisher pressure tags, audibility dB levels, and battery endurance for life-safety certification.</p>
+          </div>
+        </div>
+
+        <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-family: monospace; font-size: 0.76rem; color: #64748b;">
+            Stack: Python 3.9+ Backend &bull; SQLite3 &bull; SSE Streams &bull; HTML5 Canvas 2D &bull; Web Audio API NFPA 72 &bull; Client-Side Vision
+          </div>
+          <button class="btn btn-primary" onclick="toggleModal('pitchModal', false)">Got It / Explore Live Demo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fire Commander Drill Trainer Modal -->
+    <div id="drillModal" class="modal-overlay">
+      <div class="modal-card" style="max-width: 680px;">
+        <button class="modal-close" onclick="toggleModal('drillModal', false)">&times;</button>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
+          <div style="font-size: 26px;">🎯</div>
+          <div>
+            <h2 style="font-size: 1.25rem; color: #fff;">Interactive Fire Commander Drill Trainer</h2>
+            <p style="font-size: 0.78rem; color: #94a3b8;">Test your emergency tactical decisions under simulated pressure</p>
+          </div>
+        </div>
+
+        <div id="drillScenarioCard" style="padding: 14px 16px; background: rgba(15, 23, 42, 0.75); border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--border-subtle);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <strong style="color: #f87171; font-size: 0.88rem;">⚠️ LIVE SCENARIO: Class C Electrical Fire & Thermal Runaway in Server Room B</strong>
+            <span class="status-pill violation">DEFCON 1</span>
+          </div>
+          <p style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.5;">
+            Sentinel Vision confirms electrical arc ignition in Battery Rack 4. Temperature has breached 84°C with toxic fluorinated acid fumes spreading toward the West Corridor. 67 building occupants are currently on site.
+          </p>
+        </div>
+
+        <!-- 3 Decision Selectors -->
+        <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px;">
+          <div>
+            <label style="font-size: 0.8rem; font-weight: 700; color: #38bdf8; display: block; margin-bottom: 6px;">
+              1. Mandated Suppression Medium (NFPA 2001 & 10):
+            </label>
+            <select id="drillSuppressionSelect" class="form-select">
+              <option value="fm200">FM-200 Clean Agent Total Flooding (Safe for energized 480V circuits)</option>
+              <option value="water">High-Pressure Automatic Water Sprinklers</option>
+              <option value="dry_chem">Multi-Purpose ABC Dry Chemical Powder</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="font-size: 0.8rem; font-weight: 700; color: #38bdf8; display: block; margin-bottom: 6px;">
+              2. Mechanical HVAC Damper Strategy (NFPA 90A & ASHRAE):
+            </label>
+            <select id="drillHvacSelect" class="form-select">
+              <option value="seal_recirc">Isolate Zone B: Seal recirculation dampers to starve oxygen & contain fumes</option>
+              <option value="full_exhaust">Engage maximum intake fan speed to blow corridor smoke</option>
+              <option value="default_cycle">Maintain standard building HVAC cycle</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="font-size: 0.8rem; font-weight: 700; color: #38bdf8; display: block; margin-bottom: 6px;">
+              3. Dynamic Egress Directive (NFPA 101 Life Safety):
+            </label>
+            <select id="drillEgressSelect" class="form-select">
+              <option value="east_stairwell">Reroute occupants via Exit B (East Fire Stairwell - pressurized & clear)</option>
+              <option value="west_courtyard">Direct occupants through West Corridor toward Exit D</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="drillResultBox" style="display: none; padding: 14px; border-radius: 8px; margin-bottom: 16px;"></div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <button class="btn" onclick="toggleModal('drillModal', false)">Close</button>
+          <button id="drillSubmitBtn" class="btn btn-primary" onclick="submitDrillDecisions()">Submit Command Decisions ➔</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Official NFPA 901 Incident Action Plan (IAP) Modal -->
+    <div id="iapModal" class="modal-overlay">
+      <div class="modal-card" style="max-width: 820px;">
+        <button class="modal-close" onclick="toggleModal('iapModal', false)">&times;</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
+          <div>
+            <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">NFPA 901 Standard Operational Document</div>
+            <h2 style="font-size: 1.25rem; color: #fff;">Incident Action Plan (IAP) &mdash; ICS Form 202/204</h2>
+          </div>
+          <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save PDF</button>
+        </div>
+
+        <div id="iapContentBody" style="font-family: monospace; font-size: 0.8rem; line-height: 1.6; color: #cbd5e1; max-height: 60vh; overflow-y: auto; background: rgba(10, 15, 29, 0.6); padding: 16px; border-radius: 8px;">
+          Loading Incident Action Plan...
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating AI Co-Pilot FAB -->
+    <button id="openAiDrawerBtn" class="ai-fab-btn" onclick="toggleAiDrawer(true)">
+      <span style="font-size: 1.1rem;">✨</span>
+      <span>Nexus AI Co-Pilot</span>
+    </button>
+
+    <!-- AI Co-Pilot Drawer -->
+    <div id="aiDrawerOverlay" class="ai-drawer-overlay" onclick="toggleAiDrawer(false)"></div>
+    <div id="aiDrawer" class="ai-drawer">
+      <div class="ai-drawer-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="brand-logo" style="width: 32px; height: 32px; font-size: 16px;">✨</div>
+          <div>
+            <h3 style="font-size: 0.95rem; color: #fff; font-weight: 700;">Nexus AI Fire Safety Co-Pilot</h3>
+            <div style="font-size: 0.7rem; color: #34d399; display: flex; align-items: center; gap: 4px;">
+              <span class="pulse-dot"></span> LIVE FACILITY CONTEXT ACTIVE
+            </div>
+          </div>
+        </div>
+        <button class="modal-close" onclick="toggleAiDrawer(false)">&times;</button>
+      </div>
+
+      <div class="ai-chip-suggestions">
+        <button class="ai-chip" onclick="askAiPreset('What is the fire suppression protocol for a lithium-ion battery fire in Server Room B?')">⚡ Lithium Fire Protocol</button>
+        <button class="ai-chip" onclick="askAiPreset('Which evacuation routes and exits are currently safe?')">🗺️ Safe Egress Check</button>
+        <button class="ai-chip" onclick="askAiPreset('What is the suppression procedure for a commercial kitchen grease fire?')">🍳 Kitchen Saponification</button>
+        <button class="ai-chip" onclick="askAiPreset('Draft an emergency broadcast PA announcement for the building occupants.')">📢 Draft PA Script</button>
+        <button class="ai-chip" onclick="askAiPreset('What are the key NFPA 10 and NFPA 72 inspection requirements?')">📋 NFPA Code Audit</button>
+        <button class="ai-chip" onclick="askAiPreset('Explain flashover probability and what conditions trigger it.')">🔥 Flashover Physics</button>
+      </div>
+
+      <div id="aiChatHistory" class="ai-chat-history">
+        <!-- Messages injected dynamically -->
+      </div>
+
+      <form id="aiChatForm" class="ai-chat-footer" onsubmit="handleAiChatSubmit(event)">
+        <input id="aiChatInput" type="text" class="chat-input" placeholder="Ask Nexus Fire Safety AI anything..." autocomplete="off">
+        <button type="submit" class="btn btn-primary" id="aiSendBtn">Send ↵</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
